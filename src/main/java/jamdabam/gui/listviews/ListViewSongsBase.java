@@ -1,34 +1,29 @@
-package jamdabam.gui;
+package jamdabam.gui.listviews;
 
 import jamdabam.entities.Song;
+import jamdabam.gui.listviews.cells.Cell;
 import jamdabam.service.SongServiceInt;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.layout.VBox;
-import javafx.stage.DirectoryChooser;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class ListViewSongsBase extends ListView<Song> {
     protected SongServiceInt ivSongService;
 
-    protected Map<String, VBox> ivCellMap = new HashMap<>();
+    protected Map<String, Cell> ivCellMap = new HashMap<>();
     protected Map<String, Song> ivSongs = new LinkedHashMap<>();
 
     protected String ivDownloadPath;
 
-    protected Process previewProcess;
+    protected Process ivPreviewProcess;
 
-    public ListViewSongsBase(final SongServiceInt aSongService) {
-        this(aSongService, null);
-    }
-
-    public ListViewSongsBase(final SongServiceInt aSongService, String aDownloadPath) {
+    public ListViewSongsBase(final SongServiceInt aSongService, final String aDownloadPath) {
         ivSongService = aSongService;
         ivDownloadPath = aDownloadPath;
 
@@ -39,42 +34,72 @@ public abstract class ListViewSongsBase extends ListView<Song> {
             }
 
             @Override
-            protected void updateItem(Song aSong, boolean aEmpty) {
+            protected void updateItem(final Song aSong, final boolean aEmpty) {
                 super.updateItem(aSong, aEmpty);
 
                 if (aEmpty) {
                     setGraphic(null);
-                } else {
+                }
+                else {
                     setGraphic(ivCellMap.get(aSong.getKey()));
                 }
             }
         });
-
-        initDownloadPathIfNecessary();
     }
 
-    protected void refreshSongs() {
+    protected void addSong(final Song aSong) {
+        addSongs(List.of(aSong));
+    }
+
+    protected void addSongs(final List<Song> aNewSongs) {
+        for (Song song : aNewSongs) {
+            ivSongs.put(song.getKey(), song);
+            createCell(song);
+        }
+
+        refreshSongs();
+    }
+
+    private void refreshSongs() {
         ObservableList<Song> items = getItems();
         int size = items.size();
         items.clear();
         items.addAll(ivSongs.values());
+
         setItems(items);
 
         refresh();
         scrollTo(size - 4);
     }
 
-    protected void initDownloadPathIfNecessary() {
-        if (ivDownloadPath == null || ivDownloadPath.isEmpty()) {
-            DirectoryChooser chooseDirectory = new DirectoryChooser();
-            chooseDirectory.setTitle("Downloadpfad initialisieren...");
-            File directory = chooseDirectory.showDialog(null);
+    public void removeSong(final Song aSong) {
+        removeSongs(List.of(aSong));
+    }
 
-            ivDownloadPath = directory.getAbsolutePath();
+    public void removeSongs(final List<Song> aSongs) {
+        for (Song song : aSongs) {
+            ivSongs.remove(song.getKey());
+            ivCellMap.remove(song.getKey());
         }
+
+        refreshSongs();
     }
 
     public String getDownloadPath() {
         return ivDownloadPath;
     }
+
+    public SongServiceInt getSongService() {
+        return ivSongService;
+    }
+
+    public void setPreviewProcess(final Process aPreviewProcess) {
+        ivPreviewProcess = aPreviewProcess;
+    }
+
+    public Process getPreviewProcess() {
+        return ivPreviewProcess;
+    }
+
+    protected abstract void createCell(final Song aSong);
 }

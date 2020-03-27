@@ -1,13 +1,14 @@
 package jamdabam.beatsaverdownloader;
 
 
-import jamdabam.gui.ListViewDownloadQueue;
-import jamdabam.gui.ListViewSongLatest;
+import jamdabam.gui.listviews.ListViewDownloadQueue;
+import jamdabam.gui.listviews.ListViewSongLatest;
 import jamdabam.service.SongServiceImpl;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 public class BeatSaverDownloaderGUI extends Application {
@@ -22,14 +23,16 @@ public class BeatSaverDownloaderGUI extends Application {
         aPrimaryStage.setWidth(1000);
         aPrimaryStage.setHeight(1000);
 
+        String initDownloadPath = initDownloadPath();
         SongServiceImpl songService = new SongServiceImpl();
-        ListViewSongLatest listViewLatestSongs = new ListViewSongLatest(songService);
+        ListViewDownloadQueue listViewDownloadQueue = new ListViewDownloadQueue(songService, initDownloadPath);
+        ListViewSongLatest listViewLatestSongs = new ListViewSongLatest(songService, listViewDownloadQueue, initDownloadPath);
+
         TabPane tabPane = new TabPane();
-        Tab songListTab = new Tab("Songs", listViewLatestSongs);
+        Tab songListTab = new Tab("Latest", listViewLatestSongs);
         songListTab.setClosable(false);
         tabPane.getTabs().add(songListTab);
 
-        ListViewDownloadQueue listViewDownloadQueue = new ListViewDownloadQueue(songService, listViewLatestSongs.getDownloadPath());
         Tab downloadQueueTab = new Tab("Queue", listViewDownloadQueue);
         downloadQueueTab.setClosable(false);
         tabPane.getTabs().add(downloadQueueTab);
@@ -39,5 +42,11 @@ public class BeatSaverDownloaderGUI extends Application {
         aPrimaryStage.setScene(scene);
         aPrimaryStage.show();
         aPrimaryStage.setOnCloseRequest(aEvent -> listViewLatestSongs.cleanPreviewFiles());
+    }
+
+    private String initDownloadPath() {
+        DirectoryChooser chooseDirectory = new DirectoryChooser();
+        chooseDirectory.setTitle("Downloadpfad initialisieren...");
+        return chooseDirectory.showDialog(null).getAbsolutePath();
     }
 }

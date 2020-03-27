@@ -49,7 +49,14 @@ public class SongServiceImpl implements SongServiceInt {
 
     @Override
     public boolean exists(final Song aSong, final String aFrom) {
-        return checkSongIdAlreadyDownloaded(aFrom, aSong.getKey());
+        Boolean exists = aSong.getDownloaded();
+
+        if (exists == null) {
+            exists = checkSongIdAlreadyDownloaded(aFrom, aSong.getKey());
+            aSong.setDownloaded(exists);
+        }
+
+        return exists;
     }
 
     private List<Song> getSongPage(final int aPage, final Filter aFilter, final String aCallBaseUrl) {
@@ -57,8 +64,7 @@ public class SongServiceImpl implements SongServiceInt {
 
         try {
             String fetchSongJson = readUrl(aCallBaseUrl + "/" + aPage);
-            songs = aFilter == null ? BeatSaverParser.parse(fetchSongJson)
-                    : aFilter.filter(BeatSaverParser.parse(fetchSongJson));
+            songs = aFilter == null ? BeatSaverParser.parse(fetchSongJson) : aFilter.filter(BeatSaverParser.parse(fetchSongJson));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Etwas ist beim lesen der latest Songs schief gelaufen. " + e.getMessage());
@@ -132,7 +138,8 @@ public class SongServiceImpl implements SongServiceInt {
                     saveUrl(downloadFile.toPath(), url, 30, 30);
                     aSong.setDownloaded(true);
                     System.out.println("Downloaded: " + downloadName);
-                } else {
+                }
+                else {
                     System.out.println("File exists: " + downloadName);
                 }
 
@@ -142,7 +149,8 @@ public class SongServiceImpl implements SongServiceInt {
                     System.out.println("File not found " + downloadName);
                 }
             }
-        } else {
+        }
+        else {
             isDownloaded = true;
             System.out.println("Key exists: " + downloadName);
         }
@@ -172,8 +180,7 @@ public class SongServiceImpl implements SongServiceInt {
         return files != null && files.length > 0;
     }
 
-    private void saveUrl(final Path aFile, final URL aUrl, final int aSecsConnectTimeout, final int aSecsReadTimeout)
-            throws IOException {
+    private void saveUrl(final Path aFile, final URL aUrl, final int aSecsConnectTimeout, final int aSecsReadTimeout) throws IOException {
         try (InputStream in = streamFromUrl(aUrl, aSecsConnectTimeout, aSecsReadTimeout)) {
             Files.copy(in, aFile);
         }
@@ -181,13 +188,10 @@ public class SongServiceImpl implements SongServiceInt {
 
     private InputStream streamFromUrl(final URL aUrl, final int aSecsConnectTimeout, final int aSecsReadTimeout) throws IOException {
         URLConnection conn = aUrl.openConnection();
-        conn.setRequestProperty("User-Agent",
-                "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
 
-        if (aSecsConnectTimeout > 0)
-            conn.setConnectTimeout(aSecsConnectTimeout * 1000);
-        if (aSecsReadTimeout > 0)
-            conn.setReadTimeout(aSecsReadTimeout * 1000);
+        if (aSecsConnectTimeout > 0) conn.setConnectTimeout(aSecsConnectTimeout * 1000);
+        if (aSecsReadTimeout > 0) conn.setReadTimeout(aSecsReadTimeout * 1000);
         return conn.getInputStream();
     }
 
