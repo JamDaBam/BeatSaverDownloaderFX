@@ -1,16 +1,11 @@
 package jamdabam.entities;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import jamdabam.configuration.Constants;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 @Data
 @Accessors(prefix = "iv")
@@ -36,6 +31,7 @@ public class Song {
     private String ivDirectDownload;
     private String ivDownloadURL;
     private String ivCoverURL;
+    private Boolean ivDownloaded;
 
     public String getDirectDownload() {
         return Constants.BASE_URL + ivDirectDownload;
@@ -57,8 +53,7 @@ public class Song {
     public String getDifficultiesAsString() {
         String res = "";
 
-        for (Iterator<Entry<String, Boolean>> iterator = ivDifficulties.entrySet().iterator(); iterator.hasNext();) {
-            Entry<String, Boolean> entry = iterator.next();
+        for (Entry<String, Boolean> entry : ivDifficulties.entrySet()) {
             String difficulty = entry.getKey();
             Boolean active = entry.getValue();
 

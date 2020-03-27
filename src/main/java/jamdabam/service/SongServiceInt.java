@@ -7,19 +7,23 @@ import java.util.List;
 
 
 public interface SongServiceInt {
-    public List<Song> getLatestSongs(final int aSongs);
+    List<Song> getLatestSongs(final int aSongs);
 
-    public List<Song> getLatestSongs(final int aSongs, final Filter aFilter);
+    List<Song> getLatestSongs(final int aSongs, final Filter aFilter);
 
-    public List<Song> getLatestSongPage(final int aPageNum);
+    List<Song> getLatestSongPage(final int aPageNum);
 
-    public List<Song> getLatestSongPage(final int aPageNum, final Filter aFilter);
+    List<Song> getLatestSongPage(final int aPageNum, final Filter aFilter);
 
-    public List<Song> getHottestSongs(final int aSongs);
+    List<Song> getHottestSongs(final int aSongs);
 
-    public List<Song> getHottestSongs(final int aSongs, final Filter aFilter);
+    List<Song> getHottestSongs(final int aSongs, final Filter aFilter);
 
-    public void downloadSongs(final List<Song> aSongs, final String aTo);
+    boolean exists(final Song aSong, final String aDirectory);
 
-    public boolean donwloadSong(final Song aSong, final String aTo);
+    void downloadSongs(final List<Song> aSongs, final String aDirectory);
+
+    boolean donwloadSong(final Song aSong, final String aDirectory);
+
+    void openPreview(final Song aSong);
 }

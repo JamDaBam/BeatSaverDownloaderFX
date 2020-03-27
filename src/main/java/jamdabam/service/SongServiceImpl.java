@@ -5,8 +5,8 @@ import jamdabam.configuration.Constants;
 import jamdabam.entities.Song;
 import jamdabam.parser.BeatSaverParser;
 
+import java.awt.*;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -47,6 +47,11 @@ public class SongServiceImpl implements SongServiceInt {
         return getSongs(aSongs, aFilter, Constants.HOTTEST_CALL_BASE_URL);
     }
 
+    @Override
+    public boolean exists(final Song aSong, final String aFrom) {
+        return checkSongIdAlreadyDownloaded(aFrom, aSong.getKey());
+    }
+
     private List<Song> getSongPage(final int aPage, final Filter aFilter, final String aCallBaseUrl) {
         List<Song> songs = Collections.emptyList();
 
@@ -66,7 +71,7 @@ public class SongServiceImpl implements SongServiceInt {
         List<Song> res = null;
 
         int site = 0;
-        int size = 0;
+        int size;
 
         do {
             List<Song> songs = getSongPage(site, aFilter, aCallBaseUrl);
@@ -95,29 +100,25 @@ public class SongServiceImpl implements SongServiceInt {
             site++;
         } while (size < aSongs);
 
-        if (res == null) {
-            res = Collections.emptyList();
-        }
-
         return res;
     }
 
     @Override
-    public void downloadSongs(final List<Song> aSongs, final String aTo) {
+    public void downloadSongs(final List<Song> aSongs, final String aDirectory) {
         for (Song song : aSongs) {
-            donwloadSong(song, aTo);
+            donwloadSong(song, aDirectory);
         }
     }
 
     @Override
-    public boolean donwloadSong(final Song aSong, final String aTo) {
+    public boolean donwloadSong(final Song aSong, final String aDirectory) {
         boolean isDownloaded = false;
 
         String downloadName = aSong.getDownloadName();
 
         // Checks songidprefix of files in downloadpath if found one or more files skip.
-        if (!checkSongIdAlreadyDownloaded(aTo, aSong.getKey())) {
-            File downloadFile = new File(aTo, downloadName);
+        if (!checkSongIdAlreadyDownloaded(aDirectory, aSong.getKey())) {
+            File downloadFile = new File(aDirectory, downloadName);
 
             try {
                 // Doublecheck if the new file exists
@@ -129,6 +130,7 @@ public class SongServiceImpl implements SongServiceInt {
                     String downloadUrl = aSong.getDirectDownload();
                     URL url = new URL(downloadUrl);
                     saveUrl(downloadFile.toPath(), url, 30, 30);
+                    aSong.setDownloaded(true);
                     System.out.println("Downloaded: " + downloadName);
                 } else {
                     System.out.println("File exists: " + downloadName);
@@ -148,27 +150,30 @@ public class SongServiceImpl implements SongServiceInt {
         return isDownloaded;
     }
 
+    @Override
+    public void openPreview(final Song aSong) {
+        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+            try {
+                URL url = new URL(Constants.PREVIEW_BASE_URL + aSong.getKey());
+                desktop.browse(url.toURI());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private boolean checkSongIdAlreadyDownloaded(final String aPath, final String aSongId) {
         File dir = new File(aPath);
 
         // list the files using a anonymous FileFilter
-        File[] files = dir.listFiles(new FileFilter() {
+        File[] files = dir.listFiles(file -> file.getName().startsWith(aSongId + " "));
 
-            @Override
-            public boolean accept(File file) {
-                return file.getName().startsWith(aSongId + " ");
-            }
-        });
-
-        if (files != null && files.length > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return files != null && files.length > 0;
     }
 
     private void saveUrl(final Path aFile, final URL aUrl, final int aSecsConnectTimeout, final int aSecsReadTimeout)
-            throws MalformedURLException, IOException {
+            throws IOException {
         try (InputStream in = streamFromUrl(aUrl, aSecsConnectTimeout, aSecsReadTimeout)) {
             Files.copy(in, aFile);
         }
@@ -191,7 +196,7 @@ public class SongServiceImpl implements SongServiceInt {
         try {
             URL url = new URL(urlString);
             reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             int read;
             char[] chars = new char[1024];
             while ((read = reader.read(chars)) != -1) {
