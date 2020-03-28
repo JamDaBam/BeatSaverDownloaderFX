@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ListViewSongsBase extends ListView<Song> {
-    protected SongServiceInt ivSongService;
+    protected final SongServiceInt ivSongService;
 
-    protected Map<String, Cell> ivCellMap = new HashMap<>();
-    protected Map<String, Song> ivSongs = new LinkedHashMap<>();
+    protected final Map<String, Cell> ivCellMap = new HashMap<>();
+    protected final Map<String, Song> ivSongs = new LinkedHashMap<>();
 
-    protected String ivDownloadPath;
+    protected final String ivDownloadPath;
 
     protected Process ivPreviewProcess;
 
@@ -79,7 +79,6 @@ public abstract class ListViewSongsBase extends ListView<Song> {
     public void removeSongs(final List<Song> aSongs) {
         for (Song song : aSongs) {
             ivSongs.remove(song.getKey());
-            ivCellMap.remove(song.getKey());
         }
 
         refreshSongs();
@@ -91,14 +90,6 @@ public abstract class ListViewSongsBase extends ListView<Song> {
 
     public SongServiceInt getSongService() {
         return ivSongService;
-    }
-
-    public void setPreviewProcess(final Process aPreviewProcess) {
-        ivPreviewProcess = aPreviewProcess;
-    }
-
-    public Process getPreviewProcess() {
-        return ivPreviewProcess;
     }
 
     protected abstract void createCell(final Song aSong);

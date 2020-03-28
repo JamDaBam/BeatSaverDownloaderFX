@@ -29,7 +29,7 @@ public class ListViewSongLatest extends ListViewSongsBase {
 
     private boolean ivIsLoading = false;
 
-    private ListViewDownloadQueue ivQueue;
+    private final ListViewDownloadQueue ivQueue;
 
     public ListViewSongLatest(final SongServiceInt aSongService, final ListViewDownloadQueue aQueue, final String aDownloadPath) {
         super(aSongService, aDownloadPath);
@@ -122,8 +122,11 @@ public class ListViewSongLatest extends ListViewSongsBase {
                         @Override
                         public Void call() {
                             ivSongService.donwloadSong(aSong, ivDownloadPath);
-                            ivCellMap.remove(aSong.getKey());
-                            Platform.runLater(() -> createCell(aSong));
+
+                            Platform.runLater(() -> {
+                                ivCellMap.remove(aSong.getKey());
+                                createCell(aSong);
+                            });
                             return null;
                         }
                     };
@@ -143,7 +146,6 @@ public class ListViewSongLatest extends ListViewSongsBase {
 
     public void cleanPreviewFiles() {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-
         String[] list = tmpDir.list((dir, name) -> name.startsWith(AUDIO_PREVIEW_PREFIX) && name.endsWith(AUDIO_PREVIEW_SUFFIX));
 
         if (list != null) {

@@ -7,5 +7,5 @@ import java.util.List;
 
 
 public interface Filter {
-    public List<Song> filter(List<Song> aSongs);
+    List<Song> filter(List<Song> aSongs);
 }

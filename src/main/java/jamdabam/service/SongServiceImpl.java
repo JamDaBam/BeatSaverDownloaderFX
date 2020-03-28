@@ -135,7 +135,7 @@ public class SongServiceImpl implements SongServiceInt {
 
                     String downloadUrl = aSong.getDirectDownload();
                     URL url = new URL(downloadUrl);
-                    saveUrl(downloadFile.toPath(), url, 30, 30);
+                    saveUrl(downloadFile.toPath(), url);
                     aSong.setDownloaded(true);
                     System.out.println("Downloaded: " + downloadName);
                 }
@@ -180,18 +180,18 @@ public class SongServiceImpl implements SongServiceInt {
         return files != null && files.length > 0;
     }
 
-    private void saveUrl(final Path aFile, final URL aUrl, final int aSecsConnectTimeout, final int aSecsReadTimeout) throws IOException {
-        try (InputStream in = streamFromUrl(aUrl, aSecsConnectTimeout, aSecsReadTimeout)) {
+    private void saveUrl(final Path aFile, final URL aUrl) throws IOException {
+        try (InputStream in = streamFromUrl(aUrl)) {
             Files.copy(in, aFile);
         }
     }
 
-    private InputStream streamFromUrl(final URL aUrl, final int aSecsConnectTimeout, final int aSecsReadTimeout) throws IOException {
+    private InputStream streamFromUrl(final URL aUrl) throws IOException {
         URLConnection conn = aUrl.openConnection();
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
 
-        if (aSecsConnectTimeout > 0) conn.setConnectTimeout(aSecsConnectTimeout * 1000);
-        if (aSecsReadTimeout > 0) conn.setReadTimeout(aSecsReadTimeout * 1000);
+        conn.setConnectTimeout(30 * 1000);
+        conn.setReadTimeout(30 * 1000);
         return conn.getInputStream();
     }
 

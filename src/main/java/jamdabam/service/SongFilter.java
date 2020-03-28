@@ -13,10 +13,10 @@ import java.util.function.Predicate;
 
 
 public class SongFilter implements Filter {
-    private Double ivRating;
-    private Integer ivUpVotes;
-    private Integer ivDownVotes;
-    private Integer ivDownloads;
+    private final Double ivRating;
+    private final Integer ivUpVotes;
+    private final Integer ivDownVotes;
+    private final Integer ivDownloads;
 
     public SongFilter(Double aRating) {
         this(aRating, null, null, null);

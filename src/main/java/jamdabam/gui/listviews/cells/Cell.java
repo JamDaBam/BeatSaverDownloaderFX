@@ -23,7 +23,7 @@ public class Cell extends VBox {
     private static final Font FONT_20 = new Font(20);
     private static final Background GREEN_BACKGROUND = new Background(new BackgroundFill(Color.rgb(100, 255, 50, 0.4), CornerRadii.EMPTY, Insets.EMPTY));
 
-    private static final Map<String, ImageView> COVER_MAP = new HashMap<>();
+    private static final Map<String, Image> COVER_IMAGE_MAP = new HashMap<>();
 
     public Cell(final Song aSong, final ListViewSongsBase aListView, final Button... aButtons) {
         setSpacing(5);
@@ -42,11 +42,12 @@ public class Cell extends VBox {
         layout.setTop(title);
 
         //Cover
-        ImageView cover = COVER_MAP.get(aSong.getCoverURL());
-        if (cover == null) {
-            cover = new ImageView(new Image(aSong.getCoverURL(), true));
-            COVER_MAP.put(aSong.getCoverURL(), cover);
+        Image image = COVER_IMAGE_MAP.get(aSong.getKey());
+        if (image == null) {
+            image = new Image(aSong.getCoverURL(), true);
+            COVER_IMAGE_MAP.put(aSong.getKey(), image);
         }
+        ImageView cover = new ImageView(image);
         cover.setFitHeight(150);
         cover.setFitWidth(150);
         layout.setLeft(cover);
@@ -55,7 +56,9 @@ public class Cell extends VBox {
         GridPane stats = new GridPane();
         stats.setHgap(3);
         stats.setVgap(3);
-        stats.setPadding(new Insets(10));
+        stats.setPadding(new
+
+                Insets(10));
 
         int startRow = 0;
 
@@ -63,39 +66,69 @@ public class Cell extends VBox {
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 0, 0);
 
-        statLabel = new Label(aSong.getKey());
+        statLabel = new
+
+                Label(aSong.getKey());
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 1, startRow++);
 
-        statLabel = new Label(Constants.ICON_DOWNLOADS);
+        statLabel = new
+
+                Label(Constants.ICON_DOWNLOADS);
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 0, startRow);
 
-        statLabel = new Label(String.valueOf(aSong.getStats().getDownloads()));
+        statLabel = new
+
+                Label(String.valueOf(aSong.getStats().
+
+                getDownloads()));
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 1, startRow++);
 
-        statLabel = new Label(Constants.ICON_UPVOTES);
+        statLabel = new
+
+                Label(Constants.ICON_UPVOTES);
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 0, startRow);
 
-        statLabel = new Label(String.valueOf(aSong.getStats().getUpVotes()));
+        statLabel = new
+
+                Label(String.valueOf(aSong.getStats().
+
+                getUpVotes()));
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 1, startRow++);
 
-        statLabel = new Label(Constants.ICON_DOWNVOTES);
+        statLabel = new
+
+                Label(Constants.ICON_DOWNVOTES);
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 0, startRow);
 
-        statLabel = new Label(String.valueOf(aSong.getStats().getDownVotes()));
+        statLabel = new
+
+                Label(String.valueOf(aSong.getStats().
+
+                getDownVotes()));
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 1, startRow++);
 
-        statLabel = new Label(Constants.ICON_RATING);
+        statLabel = new
+
+                Label(Constants.ICON_RATING);
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 0, startRow);
 
-        statLabel = new Label(BigDecimal.valueOf(aSong.getStats().getRating() * 100).setScale(1, RoundingMode.HALF_UP).toString());
+        statLabel = new
+
+                Label(BigDecimal.valueOf(aSong.getStats().
+
+                getRating() * 100).
+
+                setScale(1, RoundingMode.HALF_UP).
+
+                toString());
         statLabel.setFont(FONT_15);
         stats.add(statLabel, 1, startRow);
 
@@ -114,6 +147,7 @@ public class Cell extends VBox {
             layout.setBottom(buttonLayout);
             getChildren().add(layout);
         }
+
     }
 
     public void setDownloaded() {

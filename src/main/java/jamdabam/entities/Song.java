@@ -51,21 +51,21 @@ public class Song {
     }
 
     public String getDifficultiesAsString() {
-        String res = "";
+        StringBuilder res = new StringBuilder();
 
         for (Entry<String, Boolean> entry : ivDifficulties.entrySet()) {
             String difficulty = entry.getKey();
             Boolean active = entry.getValue();
 
-            if (!res.isEmpty() && Boolean.TRUE.equals(active)) {
-                res += ", ";
+            if ((res.length() > 0) && Boolean.TRUE.equals(active)) {
+                res.append(", ");
             }
 
             if (Boolean.TRUE.equals(active)) {
-                res += difficulty;
+                res.append(difficulty);
             }
         }
 
-        return res;
+        return res.toString();
     }
 }
